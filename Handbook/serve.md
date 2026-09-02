@@ -1,31 +1,42 @@
-# Serving the Handbook Locally
+# Working with the Handbook
 
-The handbook uses `fetch()` to load markdown files, which requires a local web server
-(browsers block file loading when you open `index.html` directly as a `file://` URL).
-
-## Option 1 — Python (no install needed)
-
-Open a terminal in this `Handbook/` folder and run:
-
-```
-python -m http.server 8080
-```
-
-Then open: **http://localhost:8080**
-
-## Option 2 — VS Code Live Server extension
-
-1. Install the **Live Server** extension in VS Code
-2. Open this folder in VS Code
-3. Right-click `index.html` → **Open with Live Server**
-   (or click "Go Live" in the bottom status bar)
-
-## Option 3 — Node.js
-
-```
-npx serve .
-```
+There are two ways to view the handbook locally.
 
 ---
 
-Once served, any changes you make to a `.md` file will appear immediately on the next browser refresh — no rebuild needed.
+## Option A — Compiled (no server needed)
+
+Run the build script once after editing any `.md` file:
+
+```
+python build.py
+```
+
+Then open `index.html` directly in any browser — no server required.
+This is also what GitHub Actions runs before deploying to GitHub Pages,
+so what you see locally will match what's live.
+
+---
+
+## Option B — Live server (instant refresh while editing)
+
+Good when you're actively writing content and want to see changes on every save
+without re-running the build script.
+
+**Python (no install needed):**
+```
+python -m http.server 8080
+```
+Then open: **http://localhost:8080**
+
+**VS Code Live Server extension:**
+Right-click `index.html` → **Open with Live Server**
+(or click "Go Live" in the VS Code status bar)
+
+---
+
+## Adding a new section
+
+1. Create the `.md` file in the appropriate `Section*/` folder.
+2. Add an entry to the `SECTIONS` array in **both** `index.html` and `build.py`.
+3. Run `python build.py` to compile.
