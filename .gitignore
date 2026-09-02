@@ -1,0 +1,34 @@
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+
+# Local server / dev tools
+node_modules/
+.npm/
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+
+# Build / temp output
+dist/
+build/
+*.tmp
+*.bak
+*.log
