@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Troop 361 Handbook</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+  <style>
+    :root {
+      --green-dark:   #1a472a;
+      --green-mid:    #2d5a3d;
+      --green-light:  #e8f4ed;
+      --red:          #c41e3a;
+      --red-hover:    #a01630;
+      --sidebar-w:    280px;
+      --text:         #333;
+      --muted:        #666;
+      --border:       #ddd;
+      --bg:           #f5f5f5;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    header h1 {
+      font-size: 1.3em;
+      white-space: nowrap;
+      flex: 1;
+    }
+    header h1 span { font-size: 0.8em; font-weight: 400; opacity: 0.85; display: block; }
+    #search-input {
+      padding: 7px 12px;
+      border-radius: 20px;
+      border: none;
+      font-size: 0.9em;
+      width: 220px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      outline: none;
+    }
+    #search-input::placeholder { color: rgba(255,255,255,0.65); }
+    #search-input:focus { background: rgba(255,255,255,0.25); }
+    #menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5em;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    /* ── Layout ── */
+    #layout {
+      display: flex;
+      flex: 1;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: white;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .section-group { border-bottom: 1px solid var(--border); }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 16px;
+      font-weight: 600;
+      font-size: 0.9em;
+      color: var(--green-dark);
+      cursor: pointer;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .section-header:hover { background: var(--green-light); }
+    .section-header .icon { font-size: 1.1em; }
+    .section-header .chevron {
+      margin-left: auto;
+      transition: transform 0.2s;
+      font-size: 0.7em;
+      color: var(--muted);
+    }
+    .section-header.open .chevron { transform: rotate(90deg); }
+    .subsection-list {
+      display: none;
+      background: #fafafa;
+    }
+    .subsection-list.open { display: block; }
+    .subsection-link {
+      display: block;
+      padding: 9px 16px 9px 38px;
+      font-size: 0.85em;
+      color: var(--text);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .subsection-link:hover { background: var(--green-light); }
+    .subsection-link.active {
+      border-left-color: var(--red);
+      background: #f0f8f5;
+      font-weight: 600;
+      color: var(--green-dark);
+    }
+    #search-results { padding: 8px 0; display: none; }
+    #search-results .subsection-link { border-left: none; padding-left: 16px; }
+
+    /* ── Main content ── */
+    #main {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      max-width: 800px;
+    }
+
+    /* Rendered markdown styles */
+    #content h1 { color: var(--green-dark); border-bottom: 3px solid var(--red); padding-bottom: 12px; margin-bottom: 24px; font-size: 1.7em; }
+    #content h2 { color: var(--green-mid); font-size: 1.25em; margin: 28px 0 12px; border-left: 4px solid var(--red); padding-left: 12px; }
+    #content h3 { color: #444; font-size: 1.05em; margin: 20px 0 8px; font-weight: 600; }
+    #content p { margin-bottom: 12px; line-height: 1.7; }
+    #content ul, #content ol { margin: 0 0 14px 22px; }
+    #content li { margin-bottom: 6px; line-height: 1.6; }
+    #content hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+    #content strong { color: inherit; }
+    #content em { font-style: italic; color: var(--muted); }
+    #content blockquote {
+      background: #f9f9f9;
+      border-left: 4px solid var(--green-mid);
+      padding: 12px 16px;
+      margin: 14px 0;
+      border-radius: 0 4px 4px 0;
+      font-style: italic;
+    }
+    #content code {
+      background: #f0f0f0;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    #content pre {
+      background: #f0f0f0;
+      padding: 14px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin-bottom: 14px;
+    }
+
+    /* Welcome / TOC card */
+    .toc-card {
+      background: white;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .toc-card h2 { border: none; padding: 0; margin: 0 0 10px; font-size: 1.05em; color: var(--green-dark); }
+    .toc-card ul { margin-left: 18px; }
+    .toc-card li { font-size: 0.92em; margin-bottom: 5px; }
+    .toc-card a { color: #0077aa; text-decoration: none; }
+    .toc-card a:hover { text-decoration: underline; }
+
+    /* Loading & error states */
+    #loading {
+      display: none;
+      padding: 60px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.1em;
+    }
+    .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green-mid);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #error-box {
+      display: none;
+      background: #fff8e1;
+      border-left: 4px solid #ff9800;
+      padding: 20px 24px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    #error-box h3 { color: #e65100; margin-bottom: 10px; }
+    #error-box pre { background: #f0f0f0; padding: 10px; border-radius: 3px; font-size: 0.88em; margin: 10px 0; overflow-x: auto; }
+
+    /* Print */
+    @media print {
+      header, #sidebar, #menu-toggle { display: none !important; }
+      #main { max-width: 100%; padding: 0; }
+    }
+
+    /* Mobile */
+    @media (max-width: 700px) {
+      #menu-toggle { display: block; }
+      #search-input { width: 140px; }
+      #sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        z-index: 300;
+        transform: translateX(-100%);
+        transition: transform 0.25s;
+        box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+        width: 260px;
+      }
+      #sidebar.open { transform: translateX(0); }
+      #main { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button id="menu-toggle" aria-label="Toggle navigation">☰</button>
+  <h1>⚜ Troop 361 Handbook <span>Great Trail Council · Scouting America</span></h1>
+  <input id="search-input" type="search" placeholder="Search sections…" autocomplete="off">
+</header>
+
+<div id="layout">
+  <nav id="sidebar">
+    <div id="search-results"></div>
+    <div id="nav-tree"></div>
+  </nav>
+
+  <main id="main">
+    <div id="loading"><div class="spinner"></div><br>Loading…</div>
+    <div id="error-box">
+      <h3>⚠️ Cannot load content</h3>
+      <p>This handbook needs to be served from a local web server. Browsers block file loading when opened directly as a file.</p>
+      <p><strong>Quick fix — open a terminal in the <code>Handbook/</code> folder and run one of:</strong></p>
+      <pre>python -m http.server 8080</pre>
+      <p>Then open <strong>http://localhost:8080</strong> in your browser.</p>
+      <p>Or install the <strong>VS Code Live Server</strong> extension and click "Go Live" in the status bar.</p>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<script>
+// ── Section / file manifest ─────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    id: 's1', title: 'Welcome & Troop Basics', icon: '📖',
+    files: [
+      { id: '1.1', title: 'Welcome to the Troop',         path: 'Section1-Welcome/1.1-Welcome.md' },
+      { id: '1.2', title: 'What is Scouting America?',    path: 'Section1-Welcome/1.2-Organization.md' },
+      { id: '1.3', title: 'The Scouting Spirit',          path: 'Section1-Welcome/1.3-ScoutingSpirit.md' },
+      { id: '1.4', title: 'Troop Organization',           path: 'Section1-Welcome/1.4-Organization.md' },
+      { id: '1.5', title: 'Uniform & Gear Guide',         path: 'Section1-Welcome/1.5-UniformGear.md' },
+    ]
+  },
+  {
+    id: 's2', title: 'Rank Advancement & Awards', icon: '🏅',
+    files: [
+      { id: '2.1', title: 'Path to Eagle',                      path: 'Section2-Advancement/2.1-PathToEagle.md' },
+      { id: '2.2', title: 'Scoutmaster Conference & Board of Review', path: 'Section2-Advancement/2.2-Conferences.md' },
+      { id: '2.3', title: 'Merit Badges',                       path: 'Section2-Advancement/2.3-MeritBadges.md' },
+      { id: '2.4', title: 'Special Awards & Recognition',       path: 'Section2-Advancement/2.4-Awards.md' },
+    ]
+  },
+  {
+    id: 's3', title: 'Outdoor & Camping Guide', icon: '⛺',
+    files: [
+      { id: '3.1', title: 'Camping Essentials',       path: 'Section3-Outdoor/3.1-CampingEssentials.md' },
+      { id: '3.2', title: 'Leave No Trace (LNT)',     path: 'Section3-Outdoor/3.2-LeaveNoTrace.md' },
+      { id: '3.3', title: 'Outdoor Skills Refresher', path: 'Section3-Outdoor/3.3-OutdoorSkills.md' },
+      { id: '3.4', title: 'Camping & Hiking Rules',   path: 'Section3-Outdoor/3.4-CampingRules.md' },
+    ]
+  },
+  {
+    id: 's4', title: 'Troop Operations & Conduct', icon: '⚙️',
+    files: [
+      { id: '4.1', title: 'Meetings & Attendance',         path: 'Section4-Operations/4.1-Meetings.md' },
+      { id: '4.2', title: 'Code of Conduct & Youth Protection', path: 'Section4-Operations/4.2-CodeOfConduct.md' },
+      { id: '4.3', title: 'Parent & Guardian Guide',       path: 'Section4-Operations/4.3-Parents.md' },
+      { id: '4.4', title: 'Appendix & Resources',          path: 'Section4-Operations/4.4-Appendix.md' },
+    ]
+  },
+];
+
+// ── Cache ───────────────────────────────────────────────────────────────────
+const cache = {};
+
+// ── Build sidebar nav ───────────────────────────────────────────────────────
+function buildNav() {
+  const tree = document.getElementById('nav-tree');
+  SECTIONS.forEach(section => {
+    const group = document.createElement('div');
+    group.className = 'section-group';
+
+    const btn = document.createElement('button');
+    btn.className = 'section-header';
+    btn.innerHTML = `<span class="icon">${section.icon}</span>${section.title}<span class="chevron">▶</span>`;
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('open');
+      list.classList.toggle('open');
+    });
+
+    const list = document.createElement('div');
+    list.className = 'subsection-list';
+
+    section.files.forEach(file => {
+      const a = document.createElement('a');
+      a.className = 'subsection-link';
+      a.href = `#${file.id}`;
+      a.textContent = `${file.id}  ${file.title}`;
+      a.dataset.fileId = file.id;
+      list.appendChild(a);
+    });
+
+    group.appendChild(btn);
+    group.appendChild(list);
+    tree.appendChild(group);
+  });
+}
+
+// ── Lookup helpers ──────────────────────────────────────────────────────────
+function findFile(id) {
+  for (const s of SECTIONS)
+    for (const f of s.files)
+      if (f.id === id) return f;
+  return null;
+}
+
+function findSectionForFile(id) {
+  return SECTIONS.find(s => s.files.some(f => f.id === id));
+}
+
+// ── Render ──────────────────────────────────────────────────────────────────
+async function loadPage(id) {
+  const file = findFile(id);
+  if (!file) { showWelcome(); return; }
+
+  setActiveLink(id);
+
+  const loading = document.getElementById('loading');
+  const errorBox = document.getElementById('error-box');
+  const content  = document.getElementById('content');
+
+  loading.style.display  = 'block';
+  errorBox.style.display = 'none';
+  content.style.display  = 'none';
+
+  try {
+    if (!cache[id]) {
+      const res = await fetch(file.path);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      cache[id] = await res.text();
+    }
+    content.innerHTML = marked.parse(cache[id]);
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    document.getElementById('main').scrollTop = 0;
+  } catch (err) {
+    loading.style.display  = 'none';
+    errorBox.style.display = 'block';
+    content.style.display  = 'none';
+    console.error('Failed to load', file.path, err);
+  }
+}
+
+function setActiveLink(id) {
+  document.querySelectorAll('.subsection-link').forEach(a => a.classList.remove('active'));
+  const active = document.querySelector(`.subsection-link[data-file-id="${id}"]`);
+  if (!active) return;
+  active.classList.add('active');
+  // Open the parent section group
+  const list = active.closest('.subsection-list');
+  if (list) {
+    list.classList.add('open');
+    list.previousElementSibling?.classList.add('open');
+  }
+}
+
+// ── Welcome / TOC page ───────────────────────────────────────────────────────
+function showWelcome() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-box').style.display = 'none';
+  const content = document.getElementById('content');
+  content.style.display = 'block';
+  content.innerHTML = `
+    <h1>⚜ Troop 361 Scouting Handbook</h1>
+    <p>Welcome! Use the sidebar to navigate sections, or jump directly to a topic below.</p>
+    ${SECTIONS.map(s => `
+      <div class="toc-card">
+        <h2>${s.icon} ${s.title}</h2>
+        <ul>
+          ${s.files.map(f => `<li><a href="#${f.id}">${f.id} — ${f.title}</a></li>`).join('')}
+        </ul>
+      </div>`).join('')}
+  `;
+  document.querySelectorAll('.subsection-link').forEach(a => a.classList.remove('active'));
+}
+
+// ── Hash routing ─────────────────────────────────────────────────────────────
+function handleHash() {
+  const id = location.hash.slice(1);
+  id ? loadPage(id) : showWelcome();
+}
+
+window.addEventListener('hashchange', handleHash);
+
+// ── Search ───────────────────────────────────────────────────────────────────
+const searchInput  = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const navTree      = document.getElementById('nav-tree');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) {
+    searchResults.style.display = 'none';
+    navTree.style.display = 'block';
+    return;
+  }
+  const matches = SECTIONS.flatMap(s =>
+    s.files.filter(f => f.title.toLowerCase().includes(q) || f.id.includes(q))
+  );
+  navTree.style.display = 'none';
+  searchResults.style.display = 'block';
+  if (!matches.length) {
+    searchResults.innerHTML = '<p style="padding:12px 16px;font-size:.85em;color:#888">No results</p>';
+    return;
+  }
+  searchResults.innerHTML = matches.map(f =>
+    `<a class="subsection-link" href="#${f.id}" data-file-id="${f.id}">${f.id}  ${f.title}</a>`
+  ).join('');
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { searchInput.value = ''; searchInput.dispatchEvent(new Event('input')); }
+});
+
+// ── Mobile menu ───────────────────────────────────────────────────────────────
+document.getElementById('menu-toggle').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+document.getElementById('main').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildNav();
+handleHash();
+</script>
+</body>
+</html>
